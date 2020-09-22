@@ -159,6 +159,47 @@ void tin_shift_forward(Tensor input, Tensor shift, Tensor output);
 
 void tin_shift_backward(Tensor grad_output, Tensor shift, Tensor grad_input);
 
+namespace COCOeval {
+struct InstanceAnnotation {
+  InstanceAnnotation(
+      uint64_t id,
+      double score,
+      double area,
+      bool is_crowd,
+      bool ignore)
+      : id{id}, score{score}, area{area}, is_crowd{is_crowd}, ignore{ignore} {}
+  uint64_t id;
+  double score = 0.;
+  double area = 0.;
+  bool is_crowd = false;
+  bool ignore = false;
+};
+struct ImageEvaluation {
+
+  std::vector<uint64_t> detection_matches;
+  std::vector<double> detection_scores;
+  std::vector<bool> ground_truth_ignores;
+  std::vector<bool> detection_ignores;
+};
+template <class T>
+using ImageCategoryInstances = std::vector<std::vector<std::vector<T>>>;
+
+std::vector<ImageEvaluation> EvaluateImages(
+    const std::vector<std::array<double, 2>>& area_ranges, // vector of 2-tuples
+    int max_detections,
+    const std::vector<double>& iou_thresholds,
+    const ImageCategoryInstances<std::vector<double>>& image_category_ious,
+    const ImageCategoryInstances<InstanceAnnotation>&
+        image_category_ground_truth_instances,
+    const ImageCategoryInstances<InstanceAnnotation>&
+        image_category_detection_instances);
+
+py::dict Accumulate(
+    const py::object& params,
+    const std::vector<ImageEvaluation>& evalutations);
+} // namespace COCOeval
+
+
 Tensor bottom_pool_forward(Tensor input);
 
 Tensor bottom_pool_backward(Tensor input, Tensor grad_output);
@@ -357,4 +398,14 @@ PYBIND11_MODULE(TORCH_EXTENSION_NAME, m) {
   m.def("top_pool_backward", &top_pool_backward, "Top Pool Backward",
         py::arg("input"), py::arg("grad_output"),
         py::call_guard<py::gil_scoped_release>());
+
+  m.def("COCOevalAccumulate", &COCOeval::Accumulate, "COCOeval::Accumulate");
+  m.def(
+      "COCOevalEvaluateImages",
+      &COCOeval::EvaluateImages,
+      "COCOeval::EvaluateImages");
+  pybind11::class_<COCOeval::InstanceAnnotation>(m, "InstanceAnnotation")
+      .def(pybind11::init<uint64_t, double, double, bool, bool>());
+  pybind11::class_<COCOeval::ImageEvaluation>(m, "ImageEvaluation")
+      .def(pybind11::init<>());
 }

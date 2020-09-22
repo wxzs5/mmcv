@@ -9,6 +9,7 @@ from .deprecated_wrappers import Conv2d_deprecated as Conv2d
 from .deprecated_wrappers import ConvTranspose2d_deprecated as ConvTranspose2d
 from .deprecated_wrappers import Linear_deprecated as Linear
 from .deprecated_wrappers import MaxPool2d_deprecated as MaxPool2d
+from .fast_eval_api import COCOeval_opt
 from .focal_loss import (SigmoidFocalLoss, SoftmaxFocalLoss,
                          sigmoid_focal_loss, softmax_focal_loss)
 from .info import get_compiler_version, get_compiling_cuda_version
@@ -38,5 +39,5 @@ __all__ = [
     'RoIAlign', 'roi_align', 'RoIPool', 'roi_pool', 'SyncBatchNorm', 'Conv2d',
     'ConvTranspose2d', 'Linear', 'MaxPool2d', 'CrissCrossAttention', 'PSAMask',
     'point_sample', 'rel_roi_point_to_rel_img_point', 'SimpleRoIAlign',
-    'SAConv2d', 'TINShift', 'tin_shift'
+    'SAConv2d', 'TINShift', 'tin_shift','COCOeval_opt'
 ]
